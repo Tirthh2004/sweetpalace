@@ -142,7 +142,7 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Search Bar */}
+          {/* Search Bar
           <div className="hidden lg:flex items-center max-w-sm flex-1 mx-8">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -151,7 +151,7 @@ const Header = () => {
                 className="pl-10 rounded-full border-2 border-primary/20 focus:border-primary"
               />
             </div>
-          </div>
+          </div> */}
 
           {/* Actions */}
           <div className="flex items-center space-x-4">

@@ -17,6 +17,7 @@ urlpatterns = [
     path('sweets/search/', search_sweets, name='search_sweets'),
     path('sweets/<str:sweet_id>/purchase/', purchase_sweet, name='purchase_sweet'),
     path('sweets/<str:id>/', update_sweet, name='update_sweet'),
-    path('sweets/<str:id>/restock/', restock_sweet, name='restock_sweet'),
-    path('sweets/<str:id>/delete/', delete_sweet, name='delete_sweet'),
+    path('sweets/<str:sweet_id>/restock/', restock_sweet, name='restock_sweet'),
+    path("sweets/<str:sweet_id>/delete/", delete_sweet, name="delete_sweet"),
+
 ]

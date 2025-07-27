@@ -165,19 +165,15 @@ export const updateSweet = async (id, sweetData) => {
 };
 
 // Delete sweet
-export const deleteSweet = async (id) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/sweets/${id}/delete/`, {
-      method: 'DELETE',
-      headers: getAuthHeaders()
-    });
+export const deleteSweet = async (id: string) => {
+  const response = await fetch(`${API_BASE_URL}/sweets/${id}/delete/`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
 
-    return await handleResponse(response);
-  } catch (error) {
-    console.error('Delete sweet error:', error);
-    throw error;
-  }
+  return await handleResponse(response);
 };
+
 
 // Purchase sweet
 export const purchaseSweet = async (sweetId, quantity) => {
@@ -207,6 +203,21 @@ export const restockSweet = async (id, amount) => {
     return await handleResponse(response);
   } catch (error) {
     console.error('Restock sweet error:', error);
+    throw error;
+  }
+};
+
+// Get all users (admin only)
+export const getAllUsers = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Get users error:', error);
     throw error;
   }
 };

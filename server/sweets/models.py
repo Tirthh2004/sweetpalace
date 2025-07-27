@@ -17,6 +17,11 @@ class User(Document):
     password = StringField(required=True)
     name = StringField(required=True)
     phone = StringField(default="")  # Added phone field
+    is_admin = BooleanField(default=False)  # your custom field
+
+    @property
+    def is_staff(self):
+        return self.is_admin
 
     def set_password(self, raw_password):
         from django.contrib.auth.hashers import make_password

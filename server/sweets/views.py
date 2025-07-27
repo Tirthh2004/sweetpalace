@@ -10,6 +10,7 @@ from .models import Sweet
 from .serializers import SweetSerializer
 from .models import Sweet
 from .serializers import SweetSerializer
+from django.http import JsonResponse
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -175,18 +176,49 @@ def purchase_sweet(request, sweet_id):
     except Sweet.DoesNotExist:
         return Response({'detail': 'Sweet not found'}, status=404)
 
+# @api_view(['POST'])
+# @permission_classes([IsAdminUser])
+# def restock_sweet(request, id):
+#     try:
+#         sweet = Sweet.objects.get(id=id)
+#         amount = int(request.data.get('amount', 0))
+#         sweet.quantity += amount
+#         sweet.save()
+#         return Response({'message': 'Restocked successfully'})
+#     except Sweet.DoesNotExist:
+#         return Response({'error': 'Sweet not found'}, status=404)    
+    
+# views.py
+
+# @api_view(['POST'])
+# @permission_classes([IsAdminUser])
+# def restock_sweet(request, sweet_id):
+#     sweet = Sweet.objects.get(id=sweet_id)
+#     amount = int(request.data.get("amount", 0))
+#     sweet.quantity += amount
+#     sweet.save()
+#     return Response(sweet.to_json(), status=200)
+
+#  ✅ FIXED RESTOCK FUNCTION
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
-def restock_sweet(request, id):
+def restock_sweet(request, sweet_id):
     try:
-        sweet = Sweet.objects.get(id=id)
-        amount = int(request.data.get('amount', 0))
+        sweet = Sweet.objects.get(id=sweet_id)
+        amount = int(request.data.get("amount", 0))
         sweet.quantity += amount
         sweet.save()
-        return Response({'message': 'Restocked successfully'})
+        
+        # Use serializer for consistent response format
+        serializer = SweetSerializer(sweet)
+        return Response(serializer.data, status=200)
+        
     except Sweet.DoesNotExist:
-        return Response({'error': 'Sweet not found'}, status=404)    
-    
+        return Response({"error": "Sweet not found"}, status=404)
+    except ValueError:
+        return Response({"error": "Invalid amount"}, status=400)
+
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -194,3 +226,13 @@ def get_sweets(request):
     sweets = Sweet.objects()
     serializer = SweetSerializer(sweets, many=True)
     return Response(serializer.data)
+
+@api_view(['DELETE'])
+@permission_classes([IsAdminUser])
+def delete_sweet(request, sweet_id):
+    try:
+        sweet = Sweet.objects.get(id=sweet_id)
+        sweet.delete()
+        return Response({"message": "Sweet deleted successfully."})
+    except Sweet.DoesNotExist:
+        return Response({"detail": "Sweet not found."}, status=404)
