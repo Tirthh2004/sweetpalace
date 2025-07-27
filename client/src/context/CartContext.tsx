@@ -86,7 +86,7 @@
 // };
 
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 type CartItem = {
   id: string;
@@ -108,7 +108,19 @@ type CartContextType = {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  
+    const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+  if (typeof window !== "undefined") {
+    const stored = localStorage.getItem("cart");
+    return stored ? JSON.parse(stored) : [];
+  }
+  return [];
+});
+
+useEffect(() => {
+  localStorage.setItem("cart", JSON.stringify(cartItems));
+}, [cartItems]);
+
 
   const addToCart = (item: CartItem) => {
     console.log("🛒 CartContext.addToCart called with:", item);

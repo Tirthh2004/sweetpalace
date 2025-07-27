@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useCart } from "@/context/CartContext";
 
 // Import images
 import gulabJamunImage from "@/assets/gulab-jamun.jpg";
@@ -32,34 +33,7 @@ const Checkout = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Mock cart data
-  const cartItems = [
-    {
-      id: "1",
-      name: "Gulab Jamun",
-      price: 250,
-      originalPrice: 300,
-      image: gulabJamunImage,
-      quantity: 2,
-      weight: "500g"
-    },
-    {
-      id: "2", 
-      name: "Motichoor Laddu",
-      price: 320,
-      image: ladduImage,
-      quantity: 1,
-      weight: "500g"
-    },
-    {
-      id: "3",
-      name: "Kaju Katli",
-      price: 800,
-      originalPrice: 900,
-      image: kajuKatliImage,
-      quantity: 1,
-      weight: "250g"
-    }
-  ];
+  const { cartItems } = useCart();
 
   const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   const deliveryFee = subtotal >= 500 ? 0 : 50;

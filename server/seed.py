@@ -33,7 +33,7 @@ sweets_data = [
         "rating": 4.8,
         "reviews": 124,
         "description": "Soft, spongy balls soaked in aromatic sugar syrup. Made with fresh khoya and pure ghee.",
-        "image_url": "https://yourcdn.com/gulab-jamun.jpg",
+        "image_url": "https://www.google.com/url?sa=i&url=https%3A%2F%2Ftalodfoods.com%2Fproducts%2Fgulab-jamun-flour-instant-mix-healthy-tasty-makes-40-servings-200g&psig=AOvVaw3dsPslvSZjJ5SC-q3Ds6pX&ust=1753703845648000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCIigs4r83I4DFQAAAAAdAAAAABAE",
         "quantity": 100,
         "in_stock": True
     },
@@ -44,7 +44,7 @@ sweets_data = [
         "rating": 4.7,
         "reviews": 89,
         "description": "Traditional round sweets made with fine gram flour pearls and pure ghee.",
-        "image_url": "https://yourcdn.com/motichoor-laddu.jpg",
+        "image_url": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.murarisweets.com%2Fproducts%2Fmotichoor-ladoo&psig=AOvVaw1pyO0b5_zMik5SIpTucEd4&ust=1753703873471000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCNCOipf83I4DFQAAAAAdAAAAABAE",
         "quantity": 100,
         "in_stock": True
     },
