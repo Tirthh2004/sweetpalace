@@ -33,7 +33,7 @@ sweets_data = [
         "rating": 4.8,
         "reviews": 124,
         "description": "Soft, spongy balls soaked in aromatic sugar syrup. Made with fresh khoya and pure ghee.",
-        "image_url": "https://www.google.com/url?sa=i&url=https%3A%2F%2Ftalodfoods.com%2Fproducts%2Fgulab-jamun-flour-instant-mix-healthy-tasty-makes-40-servings-200g&psig=AOvVaw3dsPslvSZjJ5SC-q3Ds6pX&ust=1753703845648000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCIigs4r83I4DFQAAAAAdAAAAABAE",
+        "image_url": "https://media.istockphoto.com/id/163064596/photo/gulab-jamun.jpg?s=1024x1024&w=is&k=20&c=BsH3XXDJrdlbp3hm3AQd_X-oSvUdPJCZb-P4gkTxIho=",
         "quantity": 100,
         "in_stock": True
     },
@@ -44,7 +44,7 @@ sweets_data = [
         "rating": 4.7,
         "reviews": 89,
         "description": "Traditional round sweets made with fine gram flour pearls and pure ghee.",
-        "image_url": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.murarisweets.com%2Fproducts%2Fmotichoor-ladoo&psig=AOvVaw1pyO0b5_zMik5SIpTucEd4&ust=1753703873471000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCNCOipf83I4DFQAAAAAdAAAAABAE",
+        "image_url": "https://media.istockphoto.com/id/1044080542/photo/indian-rasgulla-or-rosogulla-dessert-sweet-served-in-a-bowl-selective-focus.jpg?s=1024x1024&w=is&k=20&c=rCWGA3A-7nDkE_oiDzHA4c9iu9RnJ-fSMfyjfzyY85c=",
         "quantity": 100,
         "in_stock": True
     },
@@ -56,7 +56,7 @@ sweets_data = [
         "rating": 4.9,
         "reviews": 156,
         "description": "Premium cashew diamond-shaped sweets with edible silver leaf.",
-        "image_url": "https://yourcdn.com/kaju-katli.jpg",
+        "image_url": "https://media.istockphoto.com/id/2203353610/photo/kaju-katli-is-a-rich-smooth-indian-sweet-made-from-cashew-nuts-sugar-and-ghee-delicately.jpg?s=1024x1024&w=is&k=20&c=aU6EvhRPabhcbxNwUA86dadk_gn6bvGHYGQCV0gIF3U=",
         "quantity": 75,
         "in_stock": True
     },
@@ -67,7 +67,7 @@ sweets_data = [
         "rating": 4.6,
         "reviews": 78,
         "description": "Soft cottage cheese balls in light sugar syrup, authentic Bengali recipe.",
-        "image_url": "https://yourcdn.com/rasgulla.jpg",
+        "image_url": "https://media.istockphoto.com/id/1044080542/photo/indian-rasgulla-or-rosogulla-dessert-sweet-served-in-a-bowl-selective-focus.jpg?s=1024x1024&w=is&k=20&c=rCWGA3A-7nDkE_oiDzHA4c9iu9RnJ-fSMfyjfzyY85c=",
         "quantity": 90,
         "in_stock": True
     },
@@ -79,7 +79,7 @@ sweets_data = [
         "rating": 4.5,
         "reviews": 95,
         "description": "Traditional gram flour laddus with almonds and cardamom.",
-        "image_url": "https://yourcdn.com/besan-laddu.jpg",
+        "image_url": "https://media.istockphoto.com/id/1463562412/photo/traditional-ball-shaped-indian-mithai-besan-ke-laddu-ladoo-or-laddoo-made-from-bengal-gram.jpg?s=1024x1024&w=is&k=20&c=KBiT06MvRMxiWz2ktl7vGRYPU1F99BXN5EPgOw5PV44=",
         "quantity": 110,
         "in_stock": True
     },
@@ -90,7 +90,7 @@ sweets_data = [
         "rating": 4.7,
         "reviews": 67,
         "description": "Cashew rolls filled with dates and dry fruits.",
-        "image_url": "https://yourcdn.com/kaju-roll.jpg",
+        "image_url": "https://media.istockphoto.com/id/641175412/photo/cashew-pistachio-roll-kaju-pista-roll-indian-sweets.jpg?s=612x612&w=0&k=20&c=PUO7YnT3eZvMQAKXAmDKt1CadodGxE8xkx_V4MkM8EU=",
         "quantity": 60,
         "in_stock": False
     },
