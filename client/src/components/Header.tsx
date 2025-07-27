@@ -17,7 +17,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [cartCount] = useState(3); // Mock cart count
+  const [cartCount] = useState(0); // Mock cart count
   const [user, setUser] = useState<{ email: string; name: string } | null>(
     null
   );

@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,61 +5,20 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
-// Import images
-import gulabJamunImage from "@/assets/gulab-jamun.jpg";
-import ladduImage from "@/assets/laddu.jpg";
-import kajuKatliImage from "@/assets/kaju-katli.jpg";
+import { useCart } from "@/context/CartContext";
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: "1",
-      name: "Gulab Jamun",
-      price: 250,
-      originalPrice: 300,
-      image: gulabJamunImage,
-      quantity: 2,
-      weight: "500g"
-    },
-    {
-      id: "2", 
-      name: "Motichoor Laddu",
-      price: 320,
-      image: ladduImage,
-      quantity: 1,
-      weight: "500g"
-    },
-    {
-      id: "3",
-      name: "Kaju Katli",
-      price: 800,
-      originalPrice: 900,
-      image: kajuKatliImage,
-      quantity: 1,
-      weight: "250g"
-    }
-  ]);
+  const { cartItems, updateQuantity, removeFromCart } = useCart();
 
-  const updateQuantity = (id: string, newQuantity: number) => {
+  const updateQuantityHandler = (id: string, newQuantity: number) => {
     if (newQuantity <= 0) {
-      removeItem(id);
+      removeFromCart(id);
       return;
     }
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setCartItems(items => items.filter(item => item.id !== id));
+    updateQuantity(id, newQuantity);
   };
 
   const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  const originalTotal = cartItems.reduce((total, item) => total + ((item.originalPrice || item.price) * item.quantity), 0);
-  const savings = originalTotal - subtotal;
   const deliveryFee = subtotal >= 500 ? 0 : 50;
   const total = subtotal + deliveryFee;
 
@@ -77,12 +34,14 @@ const Cart = () => {
               <p className="text-muted-foreground mb-6">
                 Looks like you haven't added any sweets to your cart yet.
               </p>
-              <Link to="/products">
-                <Button variant="gradient" size="lg">
-                  Start Shopping
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
+              <Button 
+                variant="gradient" 
+                size="lg"
+                onClick={() => window.location.href = '/products'}
+              >
+                Start Shopping
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -117,6 +76,9 @@ const Cart = () => {
                         src={item.image}
                         alt={item.name}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://via.placeholder.com/150x150?text=Sweet';
+                        }}
                       />
                     </div>
 
@@ -125,12 +87,12 @@ const Cart = () => {
                       <div className="flex justify-between items-start">
                         <div>
                           <h3 className="font-semibold text-lg">{item.name}</h3>
-                          <p className="text-sm text-muted-foreground">{item.weight}</p>
+                          <p className="text-sm text-muted-foreground">{item.weight || '500g'}</p>
                         </div>
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeFromCart(item.id)}
                           className="text-destructive hover:text-destructive hover:bg-destructive/10"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -140,16 +102,6 @@ const Cart = () => {
                       {/* Price */}
                       <div className="flex items-center space-x-2">
                         <span className="text-xl font-bold text-primary">₹{item.price}</span>
-                        {item.originalPrice && (
-                          <span className="text-sm text-muted-foreground line-through">
-                            ₹{item.originalPrice}
-                          </span>
-                        )}
-                        {item.originalPrice && (
-                          <Badge variant="destructive" className="text-xs">
-                            {Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}% OFF
-                          </Badge>
-                        )}
                       </div>
 
                       {/* Quantity Controls */}
@@ -159,7 +111,7 @@ const Cart = () => {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() => updateQuantityHandler(item.id, item.quantity - 1)}
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
@@ -168,7 +120,7 @@ const Cart = () => {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            onClick={() => updateQuantityHandler(item.id, item.quantity + 1)}
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
@@ -196,12 +148,6 @@ const Cart = () => {
                     <span>Subtotal</span>
                     <span>₹{subtotal}</span>
                   </div>
-                  {savings > 0 && (
-                    <div className="flex justify-between text-green-600">
-                      <span>Savings</span>
-                      <span>-₹{savings}</span>
-                    </div>
-                  )}
                   <div className="flex justify-between">
                     <span>Delivery Fee</span>
                     <span className={deliveryFee === 0 ? 'text-green-600' : ''}>
@@ -222,12 +168,15 @@ const Cart = () => {
                   <span className="text-primary">₹{total}</span>
                 </div>
 
-                <Link to="/checkout">
-                  <Button variant="gradient" size="lg" className="w-full">
-                    Proceed to Checkout
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
+                <Button 
+                  variant="gradient" 
+                  size="lg" 
+                  className="w-full"
+                  onClick={() => window.location.href = '/checkout'}
+                >
+                  Proceed to Checkout
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
               </CardContent>
             </Card>
 
@@ -245,11 +194,14 @@ const Cart = () => {
             </Card>
 
             {/* Continue Shopping */}
-            <Link to="/products">
-              <Button variant="outline" size="lg" className="w-full">
-                Continue Shopping
-              </Button>
-            </Link>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="w-full"
+              onClick={() => window.location.href = '/products'}
+            >
+              Continue Shopping
+            </Button>
           </div>
         </div>
       </div>

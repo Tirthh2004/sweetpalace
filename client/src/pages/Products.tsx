@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, Filter, Grid, List, SlidersHorizontal } from "lucide-react";
+import { Search, Filter, Grid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,16 +9,19 @@ import ProductCard from "@/components/ProductCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getSweets } from "@/lib/api";
+import { useCart } from "@/context/CartContext";
 
 const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("name");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState("grid");
   const [showFilters, setShowFilters] = useState(false);
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
+
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const loadSweets = async () => {
@@ -26,15 +29,11 @@ const Products = () => {
         setLoading(true);
         setError(null);
         const data = await getSweets();
+        console.log("Loaded products:", data); // Debug log
         setAllProducts(data);
-      } catch (error: any) {
+      } catch (error) {
         console.error("Error fetching sweets:", error);
         setError(error.message || "Failed to load sweets");
-        
-        // If authentication error, redirect to login
-        if (error.message.includes("Authentication failed")) {
-          return; // The api.ts will handle the redirect
-        }
       } finally {
         setLoading(false);
       }
@@ -53,17 +52,15 @@ const Products = () => {
     "Gift Box",
   ];
 
-  // Filter and sort products
   const filteredProducts = useMemo(() => {
-    let filtered = allProducts.filter((product: any) => {
+    let filtered = allProducts.filter((product) => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()));
+        (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
 
-    // Sort products
-    filtered.sort((a: any, b: any) => {
+    filtered.sort((a, b) => {
       switch (sortBy) {
         case "price-low":
           return a.price - b.price;
@@ -79,6 +76,38 @@ const Products = () => {
 
     return filtered;
   }, [allProducts, searchTerm, selectedCategory, sortBy]);
+
+  const handleAddToCart = (productId, quantity) => {
+    console.log("handleAddToCart called with:", { productId, quantity }); // Debug log
+    
+    const product = allProducts.find(p => p.id === productId);
+    if (!product) {
+      console.error("Product not found:", productId);
+      return;
+    }
+
+    console.log("Found product:", product); // Debug log
+    console.log("Adding to cart..."); // Debug log
+
+    try {
+      addToCart({
+        id: productId,
+        name: product.name,
+        price: product.price,
+        image: product.image_url || product.image,
+        quantity: quantity || 1,
+        weight: product.weight || "500g",
+      });
+      
+      console.log("Successfully added to cart!"); // Debug log
+      
+      // Optional: Show a success message
+      alert(`${product.name} added to cart!`);
+      
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -107,10 +136,7 @@ const Products = () => {
               <div className="text-6xl mb-4">😔</div>
               <h2 className="text-2xl font-bold mb-2">Error Loading Sweets</h2>
               <p className="text-muted-foreground mb-6">{error}</p>
-              <Button 
-                variant="outline" 
-                onClick={() => window.location.reload()}
-              >
+              <Button variant="outline" onClick={() => window.location.reload()}>
                 Try Again
               </Button>
             </CardContent>
@@ -124,25 +150,21 @@ const Products = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
-      {/* Hero Section */}
+
+      {/* Hero */}
       <section className="bg-gradient-warm py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Our Sweet Collection</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Discover our wide range of traditional Indian sweets, 
-              each crafted with authentic recipes and finest ingredients.
-            </p>
-          </div>
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Our Sweet Collection</h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Discover our wide range of traditional Indian sweets, each crafted with authentic recipes and finest ingredients.
+          </p>
         </div>
       </section>
 
-      {/* Filters and Search */}
+      {/* Filters */}
       <section className="sticky top-16 z-40 bg-background/95 backdrop-blur border-b border-border py-4">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-            {/* Search */}
             <div className="flex items-center space-x-4 w-full lg:w-auto">
               <div className="relative flex-1 lg:w-80">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -153,17 +175,11 @@ const Products = () => {
                   className="pl-10"
                 />
               </div>
-              <Button
-                variant="outline"
-                size="icon"
-                className="lg:hidden"
-                onClick={() => setShowFilters(!showFilters)}
-              >
+              <Button variant="outline" size="icon" className="lg:hidden" onClick={() => setShowFilters(!showFilters)}>
                 <Filter className="h-4 w-4" />
               </Button>
             </div>
 
-            {/* Filters */}
             <div className={`flex flex-col lg:flex-row gap-4 w-full lg:w-auto ${showFilters ? 'block' : 'hidden lg:flex'}`}>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger className="w-full lg:w-48">
@@ -191,47 +207,28 @@ const Products = () => {
               </Select>
 
               <div className="flex gap-2">
-                <Button
-                  variant={viewMode === "grid" ? "default" : "outline"}
-                  size="icon"
-                  onClick={() => setViewMode("grid")}
-                >
+                <Button variant={viewMode === "grid" ? "default" : "outline"} size="icon" onClick={() => setViewMode("grid")}>
                   <Grid className="h-4 w-4" />
                 </Button>
-                <Button
-                  variant={viewMode === "list" ? "default" : "outline"}
-                  size="icon"
-                  onClick={() => setViewMode("list")}
-                >
+                <Button variant={viewMode === "list" ? "default" : "outline"} size="icon" onClick={() => setViewMode("list")}>
                   <List className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           </div>
 
-          {/* Active Filters */}
           {(selectedCategory !== "all" || searchTerm) && (
             <div className="flex flex-wrap gap-2 mt-4">
               {selectedCategory !== "all" && (
                 <Badge variant="secondary" className="flex items-center gap-2">
                   Category: {selectedCategory}
-                  <button
-                    onClick={() => setSelectedCategory("all")}
-                    className="ml-1 hover:text-destructive"
-                  >
-                    ×
-                  </button>
+                  <button onClick={() => setSelectedCategory("all")} className="ml-1 hover:text-destructive">×</button>
                 </Badge>
               )}
               {searchTerm && (
                 <Badge variant="secondary" className="flex items-center gap-2">
                   Search: "{searchTerm}"
-                  <button
-                    onClick={() => setSearchTerm("")}
-                    className="ml-1 hover:text-destructive"
-                  >
-                    ×
-                  </button>
+                  <button onClick={() => setSearchTerm("")} className="ml-1 hover:text-destructive">×</button>
                 </Badge>
               )}
             </div>
@@ -239,12 +236,12 @@ const Products = () => {
         </div>
       </section>
 
-      {/* Products Grid */}
+      {/* Product Grid */}
       <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold">
-              {filteredProducts.length} Product{filteredProducts.length !== 1 ? 's' : ''} Found
+              {filteredProducts.length} Product{filteredProducts.length !== 1 ? "s" : ""} Found
             </h2>
           </div>
 
@@ -253,34 +250,36 @@ const Products = () => {
               <CardContent>
                 <div className="text-6xl mb-4">🍯</div>
                 <h3 className="text-xl font-semibold mb-2">No sweets found</h3>
-                <p className="text-muted-foreground mb-4">
-                  Try adjusting your search or filter criteria
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSearchTerm("");
-                    setSelectedCategory("all");
-                  }}
-                >
+                <p className="text-muted-foreground mb-4">Try adjusting your search or filter criteria</p>
+                <Button variant="outline" onClick={() => {
+                  setSearchTerm("");
+                  setSelectedCategory("all");
+                }}>
                   Clear Filters
                 </Button>
               </CardContent>
             </Card>
           ) : (
             <div className={`grid gap-8 ${
-              viewMode === "grid" 
-                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+              viewMode === "grid"
+                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                 : "grid-cols-1"
             }`}>
-              {filteredProducts.map((product: any) => (
+              {filteredProducts.map((product) => (
                 <ProductCard
                   key={product.id}
-                  {...product}
-                  image={product.image_url}
-                  onAddToCart={(id, quantity) => {
-                    console.log(`Added ${quantity} of product ${id} to cart`);
-                  }}
+                  id={product.id}
+                  name={product.name}
+                  price={product.price}
+                  originalPrice={product.originalPrice || null}
+                  image={product.image_url || product.image || 'https://via.placeholder.com/300x200?text=Sweet'}
+                  category={product.category || 'Traditional'}
+                  rating={product.rating || 4.5}
+                  reviews={product.reviews || 10}
+                  description={product.description || ''}
+                  inStock={product.inStock !== false} // Default to true if not specified
+                  isFavorite={false}
+                  onAddToCart={handleAddToCart}
                   onToggleFavorite={(id) => {
                     console.log(`Toggled favorite for product ${id}`);
                   }}
