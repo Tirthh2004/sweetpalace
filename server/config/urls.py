@@ -20,5 +20,8 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    # path('api/', include('sweets.urls')),
+    # path('api/sweets/', include('sweets.urls')),  # sweets management
     path('api/', include('sweets.urls')),
+
 ]

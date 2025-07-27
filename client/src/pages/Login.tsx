@@ -1,3 +1,4 @@
+// Fixed Login Component
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { jwtDecode } from "jwt-decode";
+import { loginUser } from "@/lib/api";
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -14,72 +15,44 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Check if user is already logged in
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (token) {
-      navigate("/"); // Redirect to home if already logged in
+      navigate("/");
     }
   }, [navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Fix the onChange handler
+  const handleInputChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/auth/login/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const data = await loginUser(formData.email, formData.password);
 
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.detail || "Login failed. Please try again.");
-      }
-
-      const data = await res.json();
-
-      // Store tokens
       localStorage.setItem("accessToken", data.access);
       localStorage.setItem("refreshToken", data.refresh);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Decode user from access token (not data.token)
-      const decoded: any = jwtDecode(data.access);
-      const user = {
-        id: data.user.id,
-        email: decoded.email || data.user.email,
-        name: decoded.name || data.user.name,
-      };
-
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // Trigger header re-render by dispatching a custom event
       window.dispatchEvent(new Event("userLoggedIn"));
-
-      // Redirect
       navigate("/");
-    } catch (err: any) {
+    } catch (err) {
+      console.error("Login error:", err);
       setError(err.message || "Something went wrong. Try again.");
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
   };
 
   return (
@@ -114,7 +87,7 @@ const Login = () => {
                       type="email"
                       placeholder="Enter your email"
                       value={formData.email}
-                      onChange={handleInputChange}
+                      onChange={handleInputChange} // Fixed this
                       className="pl-10"
                       required
                     />
@@ -131,7 +104,7 @@ const Login = () => {
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
                       value={formData.password}
-                      onChange={handleInputChange}
+                      onChange={handleInputChange} // Fixed this
                       className="pl-10 pr-10"
                       required
                     />
@@ -175,19 +148,6 @@ const Login = () => {
                   {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
                 </Button>
               </form>
-
-              <Separator />
-
-              <div className="space-y-3">
-                <Button variant="outline" size="lg" className="w-full">
-                  <span className="mr-2">🔐</span>
-                  Continue with Google
-                </Button>
-                <Button variant="outline" size="lg" className="w-full">
-                  <span className="mr-2">📘</span>
-                  Continue with Facebook
-                </Button>
-              </div>
 
               <Separator />
 

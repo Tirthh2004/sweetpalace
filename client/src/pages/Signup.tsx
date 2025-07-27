@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowRight, Eye, EyeOff, Lock, Mail, Phone, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from "@/lib/api";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -60,30 +61,14 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/auth/register/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            password: formData.password,
-          }),
-        }
+      const data = await registerUser(
+        formData.name,
+        formData.email,
+        formData.phone,
+        formData.password
       );
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.detail || "Registration failed.");
-      }
-
-      const data = await res.json();
-
-      // Store tokens
+      // Store tokens and user data
       localStorage.setItem("accessToken", data.access);
       localStorage.setItem("refreshToken", data.refresh);
       localStorage.setItem("user", JSON.stringify(data.user));

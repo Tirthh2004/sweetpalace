@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, Filter, Grid, List, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,13 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ProductCard from "@/components/ProductCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
-// Import images
-import gulabJamunImage from "@/assets/gulab-jamun.jpg";
-import ladduImage from "@/assets/laddu.jpg";
-import kajuKatliImage from "@/assets/kaju-katli.jpg";
-import rasgullaImage from "@/assets/rasgulla.jpg";
-import mixedSweetsImage from "@/assets/mixed-sweets.jpg";
+import { getSweets } from "@/lib/api";
 
 const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,102 +16,32 @@ const Products = () => {
   const [sortBy, setSortBy] = useState("name");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
+  const [allProducts, setAllProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock products data
-  const allProducts = [
-    {
-      id: "1",
-      name: "Gulab Jamun",
-      price: 250,
-      originalPrice: 300,
-      image: gulabJamunImage,
-      category: "Milk Based",
-      rating: 4.8,
-      reviews: 124,
-      description: "Soft, spongy balls soaked in aromatic sugar syrup. Made with fresh khoya and pure ghee.",
-      inStock: true,
-    },
-    {
-      id: "2",
-      name: "Motichoor Laddu",
-      price: 320,
-      image: ladduImage,
-      category: "Festival Special",
-      rating: 4.7,
-      reviews: 89,
-      description: "Traditional round sweets made with fine gram flour pearls and pure ghee.",
-      inStock: true,
-    },
-    {
-      id: "3",
-      name: "Kaju Katli",
-      price: 800,
-      originalPrice: 900,
-      image: kajuKatliImage,
-      category: "Dry Fruits",
-      rating: 4.9,
-      reviews: 156,
-      description: "Premium cashew diamond-shaped sweets with edible silver leaf.",
-      inStock: true,
-    },
-    {
-      id: "4",
-      name: "Rasgulla",
-      price: 180,
-      image: rasgullaImage,
-      category: "Bengali",
-      rating: 4.6,
-      reviews: 78,
-      description: "Soft cottage cheese balls in light sugar syrup, authentic Bengali recipe.",
-      inStock: true,
-    },
-    {
-      id: "5",
-      name: "Besan Laddu",
-      price: 280,
-      originalPrice: 320,
-      image: ladduImage,
-      category: "Traditional",
-      rating: 4.5,
-      reviews: 95,
-      description: "Traditional gram flour laddus with almonds and cardamom.",
-      inStock: true,
-    },
-    {
-      id: "6",
-      name: "Kaju Roll",
-      price: 650,
-      image: kajuKatliImage,
-      category: "Dry Fruits",
-      rating: 4.7,
-      reviews: 67,
-      description: "Cashew rolls filled with dates and dry fruits.",
-      inStock: false,
-    },
-    {
-      id: "7",
-      name: "Ras Malai",
-      price: 300,
-      image: gulabJamunImage,
-      category: "Bengali",
-      rating: 4.8,
-      reviews: 112,
-      description: "Soft cottage cheese dumplings in sweetened milk with pistachios.",
-      inStock: true,
-    },
-    {
-      id: "8",
-      name: "Mixed Sweets Box",
-      price: 550,
-      originalPrice: 650,
-      image: mixedSweetsImage,
-      category: "Gift Box",
-      rating: 4.9,
-      reviews: 234,
-      description: "Assorted traditional sweets perfect for gifting and celebrations.",
-      inStock: true,
-    },
-  ];
+  useEffect(() => {
+    const loadSweets = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getSweets();
+        setAllProducts(data);
+      } catch (error: any) {
+        console.error("Error fetching sweets:", error);
+        setError(error.message || "Failed to load sweets");
+        
+        // If authentication error, redirect to login
+        if (error.message.includes("Authentication failed")) {
+          return; // The api.ts will handle the redirect
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSweets();
+  }, []);
 
   const categories = [
     "all",
@@ -131,22 +55,22 @@ const Products = () => {
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    let filtered = allProducts.filter((product) => {
+    let filtered = allProducts.filter((product: any) => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           product.description.toLowerCase().includes(searchTerm.toLowerCase());
+                           (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
 
     // Sort products
-    filtered.sort((a, b) => {
+    filtered.sort((a: any, b: any) => {
       switch (sortBy) {
         case "price-low":
           return a.price - b.price;
         case "price-high":
           return b.price - a.price;
         case "rating":
-          return b.rating - a.rating;
+          return (b.rating || 0) - (a.rating || 0);
         case "name":
         default:
           return a.name.localeCompare(b.name);
@@ -154,7 +78,48 @@ const Products = () => {
     });
 
     return filtered;
-  }, [searchTerm, selectedCategory, sortBy]);
+  }, [allProducts, searchTerm, selectedCategory, sortBy]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-16">
+          <div className="flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading sweets...</p>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-16">
+          <Card className="max-w-md mx-auto text-center">
+            <CardContent className="p-12">
+              <div className="text-6xl mb-4">😔</div>
+              <h2 className="text-2xl font-bold mb-2">Error Loading Sweets</h2>
+              <p className="text-muted-foreground mb-6">{error}</p>
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.reload()}
+              >
+                Try Again
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -308,10 +273,11 @@ const Products = () => {
                 ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
                 : "grid-cols-1"
             }`}>
-              {filteredProducts.map((product) => (
+              {filteredProducts.map((product: any) => (
                 <ProductCard
                   key={product.id}
                   {...product}
+                  image={product.image_url}
                   onAddToCart={(id, quantity) => {
                     console.log(`Added ${quantity} of product ${id} to cart`);
                   }}
