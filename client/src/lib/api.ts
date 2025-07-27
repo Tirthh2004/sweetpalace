@@ -95,17 +95,20 @@ export const logoutUser = async () => {
 
 // Get all sweets
 export const getSweets = async () => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/sweets/`, {
-      method: 'GET',
-      headers: getAuthHeaders()
-    });
+  const token = localStorage.getItem("accessToken"); // ✅ Correct key
 
-    return await handleResponse(response);
-  } catch (error) {
-    console.error('Get sweets error:', error);
-    throw error;
+  const response = await fetch("http://localhost:8000/api/sweets/", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "", // ✅ send token if available
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Authentication failed: " + response.statusText);
   }
+
+  return await response.json();
 };
 
 // Search sweets
